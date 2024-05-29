@@ -1,0 +1,242 @@
+﻿@page "/users"
+
+@attribute [Authorize]
+@inject ISnackbar Snackbar
+@inject IDeviceTagSettingsClientService DeviceTagSettingsClientService
+
+
+<style>
+    .selected {
+        background-color: #1E88E5 !important;
+    }
+
+        .selected > td {
+            color: white !important;
+        }
+
+            .selected > td .mud-input {
+                color: white !important;
+            }
+</style>
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudGrid Justify="Justify.FlexStart">
+            <MudItem xs="12">
+                <MudGrid Justify="Justify.SpaceBetween">
+                    <MudItem>
+                        <MudIcon Icon="@Icons.Material.Filled.VerifiedUser" Style="color: white;" Size="Size.Large" />
+                        <MudText Typo="Typo.h6">Users</MudText>
+                    </MudItem>
+                    <MudItem>
+                        <MudSpacer />
+                    </MudItem>
+                    <MudItem>
+                        <MudTooltip Text="Refresh list">
+                            ''                         <MudIconButton id="reload-users" Icon="@Icons.Material.Filled.Refresh" Size="Size.Large" Class="ma-2"></MudIconButton>
+                        </MudTooltip>
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+            <MudItem xs="6">
+                <MudGrid Justify="Justify.FlexStart">
+                    <MudItem xs="9">
+                        <MudTextField Class="mb-n10" DebounceInterval="500" OnDebounceIntervalElapsed="HandleIntervalElapsed" @bind-Value="@_debouncedText" Label="Search Criteria" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" />
+                    </MudItem>
+                    <MudItem xs="3">
+                        <MudNumericField @bind-Value="NbUsers" Label="Nb users" Variant="Variant.Text" Min="0" Max="10" />
+                    </MudItem>
+                    <MudItem xs="9">
+                        <MudPagination BoundaryCount="1" MiddleCount="1" Count="22" @bind-Selected="@_selected" Class="mb-2" />
+                    </MudItem>
+                    <MudItem xs="3">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mb-2">Search</MudButton>
+                    </MudItem>
+                </MudGrid>
+                <MudTable T="UserModel" Items="@UserModels.Take(NbUsers)" Hover="true" Breakpoint="Breakpoint.Sm" @ref="mudTable"
+                          RowClass="cursor-pointer" RowClassFunc="@SelectedRowClassFunc" OnRowClick="RowClickEvent">
+                    <HeaderContent>
+                        <MudTh>Id</MudTh>
+                        <MudTh>Email</MudTh>
+                        <MudTh>GivenName</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Avatar">
+                            <MudAvatar>
+                                <MudImage Src="https://w7.pngwing.com/pngs/193/660/png-transparent-computer-icons-woman-avatar-avatar-girl-thumbnail.png"></MudImage>
+                            </MudAvatar>
+                        </MudTd>
+                        <MudTd DataLabel="Email">@context.Email</MudTd>
+                        <MudTd DataLabel="GivenName">@context.GivenName</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudItem>
+            <MudItem xs="6">
+                <MudPaper Class="mud-width-full d-flex flex-column align-center justify-center py-8">
+                    @if (clickedEvents.Count <= 0)
+                    {
+                        <MudText Typo="Typo.h6" Align="Align.Center"> No user selected. </MudText>
+                    }
+                    else
+                    {
+                        <MudAvatar Class="my-8" Style="height:150px; width:150px; font-size:2rem;" Color="Color.Primary">
+                            <MudImage Src="https://w7.pngwing.com/pngs/193/660/png-transparent-computer-icons-woman-avatar-avatar-girl-thumbnail.png"></MudImage>
+                        </MudAvatar>
+                        <MudText Typo="Typo.h5" Align="Align.Center">GivenName :  Test Test</MudText>
+                        <MudText Typo="Typo.h5" Align="Align.Center">Email :  test.test@cgi.com</MudText>
+                        <MudText Typo="Typo.h6" Align="Align.Center">Forename :  Test</MudText>
+                        <MudText Typo="Typo.h6" Align="Align.Center">FamilyName :  Test</MudText>
+                        <MudText Class="mt-n2 mb-8" Color="Color.Secondary" Typo="Typo.subtitle1" Align="Align.Center">Principal : 648a8c19-2353-4ff0-87f0-7c743b71fdc0 </MudText>
+                    }
+                </MudPaper>
+                <MudExpansionPanels Style="flex: 1;" Class="m-n10">
+                    <MudExpansionPanel Text="Show user's groups'">
+                        @foreach (var message in clickedEvents)
+                        {
+                            <MudText>@message</MudText>
+                        }
+                    </MudExpansionPanel>
+                </MudExpansionPanels>
+                <MudExpansionPanels Style="flex: 1;" Class="m-n10">
+                    <MudExpansionPanel Text="Show user's AccessControls'">
+                        @foreach (var message in clickedEvents)
+                        {
+                            <MudText>@message</MudText>
+                        }
+                    </MudExpansionPanel>
+                </MudExpansionPanels>
+            </MudItem>
+            @*
+            @for (int i = 0; i < nbUsers; i++)
+            {
+
+            <MudItem xs="3">
+            <MudButton OnClick="Alert" Class=" mud-width-full">
+            <MudPaper Class="mud-width-full d-flex flex-column align-center justify-center py-8">
+            <MudAvatar Class="my-8" Style="height:90px; width:90px; font-size:2rem;" Color="Color.Primary">R</MudAvatar>
+            <MudText Typo="Typo.h6" Align="Align.Center">User Name </MudText>
+            <MudText Class="mt-n2 mb-8" Color="Color.Secondary" Typo="Typo.subtitle1" Align="Align.Center">Attribued to 11 Users</MudText>
+            </MudPaper>
+            </MudButton>
+            </MudItem>
+            }*@
+        </MudGrid>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [CascadingParameter]
+    public Error Error { get; set; } = default!;
+
+    private bool isProcessing;
+
+    protected override async Task OnInitializedAsync()
+    {
+        //Todo
+    }
+    public int NbUsers { get; set; } = 10;
+
+    private void Alert()
+    {
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
+        Snackbar.Configuration.SnackbarVariant = Variant.Filled;
+        Snackbar.Configuration.PreventDuplicates = true;
+        Snackbar.Add("This is a warning message", Severity.Warning);
+    }
+
+    public class UserModel
+    {
+        public string Id { get; set; }
+        public string Email { get; set; }
+        public string GivenName { get; set; }
+        public string PrincipalId { get; set; }
+    }
+
+    public class UserDetailsModel
+    {
+        public string Id { get; set; }
+        public string Email { get; set; }
+        public string GivenName { get; set; }
+        public string Name { get; set; }
+        public string FamilyName { get; set; }
+        public string Avatar { get; set; }
+        public string PrincipalId { get; set; }
+        //public ICollection<GroupModel> Groups { get; set; } = new List<GroupModel>();
+        //public ICollection<AccessControlModel> AccessControls { get; set; } = new List<AccessControlModel>();
+    }
+
+    //table :
+    private int selectedRowNumber = -1;
+    private MudTable<UserModel> mudTable;
+    private List<string> clickedEvents = new();
+    private IEnumerable<UserModel> UserModels = new List<UserModel>()
+    {
+        new UserModel() { Id = "1", Email = "leo.tuaillon@cgi.com", GivenName = "Leo Tuaillon", PrincipalId = "1" },
+        new UserModel() { Id = "2", Email = "test.test@cgi.com", GivenName = "Test Test", PrincipalId = "2" },
+        new UserModel() { Id = "3", Email = "test2.test2@cgi.com", GivenName = "Test2 Test2", PrincipalId = "3" },
+        new UserModel() { Id = "4", Email = "leo.tuaillon@cgi.com", GivenName = "Leo Tuaillon", PrincipalId = "1" },
+        new UserModel() { Id = "5", Email = "test.test@cgi.com", GivenName = "Test Test", PrincipalId = "2" },
+        new UserModel() { Id = "6", Email = "test2.test2@cgi.com", GivenName = "Test2 Test2", PrincipalId = "3" },
+        new UserModel() { Id = "7", Email = "leo.tuaillon@cgi.com", GivenName = "Leo Tuaillon", PrincipalId = "1" },
+        new UserModel() { Id = "8", Email = "test.test@cgi.com", GivenName = "Test Test", PrincipalId = "2" },
+        new UserModel() { Id = "9", Email = "test2.test2@cgi.com", GivenName = "Test2 Test2", PrincipalId = "3" },
+        new UserModel() { Id = "10", Email = "test2.test2@cgi.com", GivenName = "Test2 Test2", PrincipalId = "3" }
+    };
+
+    private IEnumerable<UserModel> UserDetails = new List<UserModel>()
+    {
+        new UserModel() { Id = "1", Email = "leo.tuaillon@cgi.com", GivenName = "Leo Tuaillon", PrincipalId = "1" },
+        new UserModel() { Id = "2", Email = "test.test@cgi.com", GivenName = "Test Test", PrincipalId = "2" },
+        new UserModel() { Id = "3", Email = "test2.test2@cgi.com", GivenName = "Test2 Test2", PrincipalId = "3" },
+        new UserModel() { Id = "4", Email = "leo.tuaillon@cgi.com", GivenName = "Leo Tuaillon", PrincipalId = "1" },
+        new UserModel() { Id = "5", Email = "test.test@cgi.com", GivenName = "Test Test", PrincipalId = "2" },
+        new UserModel() { Id = "6", Email = "test2.test2@cgi.com", GivenName = "Test2 Test2", PrincipalId = "3" },
+        new UserModel() { Id = "7", Email = "leo.tuaillon@cgi.com", GivenName = "Leo Tuaillon", PrincipalId = "1" },
+        new UserModel() { Id = "8", Email = "test.test@cgi.com", GivenName = "Test Test", PrincipalId = "2" },
+        new UserModel() { Id = "9", Email = "test2.test2@cgi.com", GivenName = "Test2 Test2", PrincipalId = "3" },
+        new UserModel() { Id = "10", Email = "test2.test2@cgi.com", GivenName = "Test2 Test2", PrincipalId = "3" }
+
+    };
+
+    private void RowClickEvent(TableRowClickEventArgs<UserModel> tableRowClickEventArgs)
+    {
+        clickedEvents.Clear();
+        clickedEvents.Add("Selected User's Groups : ");
+    }
+
+    private string SelectedRowClassFunc(UserModel user, int rowNumber)
+    {
+        if (selectedRowNumber == rowNumber)
+        {
+            selectedRowNumber = -1;
+            clickedEvents.Add("No user selected.");
+            return string.Empty;
+        }
+        else if (mudTable.SelectedItem != null && mudTable.SelectedItem.Equals(user))
+        {
+            selectedRowNumber = rowNumber;
+            clickedEvents.Add($"-----------------------------");
+            clickedEvents.Add($"Name: Administrateur\t\tId: 1");
+            clickedEvents.Add($"Name: Developper\t\t\t\tId: 2");
+            clickedEvents.Add($"Name: Maintainer\t\t\t\tId: 3");
+            clickedEvents.Add($"Name: A test group\t\t\tId: 4");
+            clickedEvents.Add($"Name: Plus d'idées\t\t\tId: 5");
+
+            return "selected";
+        }
+        else
+        {
+            return string.Empty;
+        }
+    }
+
+
+    //searchBar
+    string _debouncedText = "f";
+    private int _selected = 1;
+    void HandleIntervalElapsed(string debouncedText)
+    {
+        // at this stage, interval has elapsed
+    }
+
+}

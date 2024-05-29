@@ -1,0 +1,191 @@
+﻿@page "/groups/new"
+@using System.Net.Http.Headers
+@using IoTHub.Portal.Models
+@using IoTHub.Portal.Models.v10
+@using IoTHub.Portal.Shared.Models
+
+@attribute [Authorize]
+@inject NavigationManager NavigationManager
+@inject PortalSettings Portal
+@inject ISnackbar Snackbar
+
+<MudText Typo="Typo.h5" Color="Color.Primary" Class="mb-4">Create a new Group</MudText>
+
+<MudForm Model="@Group" @ref="form" id="form">
+    <MudGrid>
+        <MudItem xs="12" sm="4" md="3">
+            <MudCard>
+                <MudCardContent>
+                    <div class="d-flex justify-center mb-4">
+                        <MudAvatar Style="height:100px; width: auto; border-radius: 0; background: transparent">
+                            <MudImage Src="@imageDataUrl"/>
+                        </MudAvatar>
+                    </div>
+                </MudCardContent>
+                <MudCardActions Class="d-flex justify-center">
+                    @if (imageDataUrl != null)
+                    {
+                        <MudButton OnClick="DeleteAvatar" Color="Color.Error">Delete Picture</MudButton>
+                    }
+                    else
+                    {
+                        <InputFile id="fileInput" hidden accept=".jpg, .jpeg, .png" OnChange="UploadFiles" />
+                        <MudButton HtmlTag="label" for="fileInput" Color="Color.Primary" StartIcon="@Icons.Material.Filled.CloudUpload">Add an Avatar</MudButton>
+                    }
+                </MudCardActions>
+            </MudCard>
+            <MudItem xs="12" Class="d-flex justify-center py-2 px-1 mt-4">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" id="SaveButton" >Save Changes</MudButton>
+            </MudItem>
+        </MudItem>
+        <MudItem xs="12" sm="8" md="9">
+            <MudTabs Elevation="1" Rounded="true" PanelClass="mt-6 scrollable-tab-content" id="tabs">
+                <MudTabPanel Text="General")>
+                    <MudExpansionPanels MultiExpansion="true" id="general">
+                        <MudGrid>
+                            <MudItem xs="12">
+                                <MudExpansionPanel Text="Details" IsInitiallyExpanded="true">
+                                    <TitleContent><MudText Typo="Typo.h6">Details</MudText></TitleContent>
+                                    <ChildContent>
+                                        <MudGrid>
+                                            <MudItem xs="12" md="6">
+                                                <MudTextField id="@nameof(Group.Name)" @bind-Value="@Group.Name" For="@(() => Group.Name)" Label="Name" Margin="Margin.Dense" Variant="Variant.Outlined" Required="true" />
+                                            </MudItem>
+                                            <MudItem xs="12" md="6">
+                                                <MudTextField id="@nameof(Group.Description)" @bind-Value="@Group.Description" For="@(() => Group.Description)" Label="Description" Variant="Variant.Outlined" Lines="5" />
+                                            </MudItem>
+                                        </MudGrid>
+                                    </ChildContent>
+                                </MudExpansionPanel>
+                            </MudItem>
+                        </MudGrid>
+                        <MudGrid>
+                            <MudItem xs="12">
+                                <MudExpansionPanel Text="Members">
+                                    <TitleContent><MudText Typo="Typo.h6">Members</MudText></TitleContent>
+                                    <ChildContent>
+                                        <MudDropContainer T="DropUser" Items="_user" ItemsSelector="@((item,dropzone) => item.Identifier == dropzone)" ItemDropped="ItemUpdated" Class="d-flex flex-wrap flex-grow-1">
+                                            <ChildContent>
+                                                <MudDropZone T="DropUser" Identifier="Users" Class="rounded mud-background-gray pa-6 ma-8 flex-grow-1">
+                                                    <MudText Typo="Typo.h6" Class="mb-4">Users</MudText>
+                                                </MudDropZone>
+                                                <MudDropZone T="DropUser" Identifier="Members" Class="rounded mud-background-gray pa-6 ma-8 flex-grow-1">
+                                                    <MudText Typo="Typo.h6" Class="mb-4">Members</MudText>
+                                                </MudDropZone>
+                                            </ChildContent>
+                                            <ItemRenderer>
+                                                <MudPaper Elevation="25" Class="pa-4 my-4">@context.Name</MudPaper>
+                                            </ItemRenderer>
+                                        </MudDropContainer>
+                                    </ChildContent>
+                                </MudExpansionPanel>
+                            </MudItem>
+                            <MudItem xs="12">
+                                <MudExpansionPanel Text="AccessControls">
+                                    <TitleContent><MudText Typo="Typo.h6">AccessControls</MudText></TitleContent>
+                                    <ChildContent>
+                                        <MudDropContainer T="DropUser" Items="_user" ItemsSelector="@((item,dropzone) => item.Identifier == dropzone)" ItemDropped="ItemUpdated" Class="d-flex flex-wrap flex-grow-1">
+                                            <ChildContent>
+                                                <MudDropZone T="DropUser" Identifier="Roles" Class="rounded mud-background-gray pa-6 ma-8 flex-grow-1">
+                                                    <MudText Typo="Typo.h6" Class="mb-4">Roles</MudText>
+                                                </MudDropZone>
+                                                <MudDropZone T="DropUser" Identifier="AccessControls" Class="rounded mud-background-gray pa-6 ma-8 flex-grow-1">
+                                                    <MudText Typo="Typo.h6" Class="mb-4">AccessControls</MudText>
+                                                </MudDropZone>
+                                            </ChildContent>
+                                            <ItemRenderer>
+                                                <MudPaper Elevation="25" Class="pa-4 my-4">@context.Name</MudPaper>
+                                            </ItemRenderer>
+                                        </MudDropContainer>
+                                    </ChildContent>
+                                </MudExpansionPanel>
+                            </MudItem>
+                        </MudGrid>
+
+                    </MudExpansionPanels>
+                </MudTabPanel>
+            </MudTabs>
+        </MudItem>
+    </MudGrid>
+</MudForm>
+
+@code {
+    [CascadingParameter]
+    public Error Error { get; set; } = default!;
+
+    private MudForm form = default!;
+
+    public class GroupDetailsModel
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Avatar { get; set; }
+        public string Description { get; set; }
+        public string PrincipalId { get; set; }
+        public ICollection<UserModel> Members { get; set; } = new List<UserModel>();
+        //public ICollection<AccessControlModel> AccessControls { get; set; } = new List<AccessControlModel>();
+    }
+
+    public class UserModel
+    {
+        public string Id { get; set; }
+        public string Email { get; set; }
+        public string GivenName { get; set; }
+        public string PrincipalId { get; set; }
+    }
+
+
+    internal GroupDetailsModel Group = new GroupDetailsModel
+        {
+            Id = "new Guid.NewGuid().ToString()"
+        };
+    // Used to manage the picture
+    private MultipartFormDataContent? content = default!;
+    private string? imageDataUrl = default!;
+
+    private void DeleteAvatar()
+    {
+        content = null;
+        imageDataUrl = null;
+    }
+
+    private async Task UploadFiles(InputFileChangeEventArgs e)
+    {
+        content = new MultipartFormDataContent();
+
+        var resizedImageFile = await e.File.RequestImageFileAsync(e.File.ContentType, 200, 200);
+
+        var fileContent = new StreamContent(resizedImageFile.OpenReadStream());
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue(e.File.ContentType);
+
+        content.Add(content: fileContent,
+                      name: "\"file\"",
+                      fileName: e.File.Name);
+
+        var buffer = new byte[resizedImageFile.Size];
+        await resizedImageFile.OpenReadStream().ReadAsync(buffer);
+
+        imageDataUrl = $"data:{e.File.ContentType};base64,{Convert.ToBase64String(buffer)}";
+    }
+
+
+    // Drop zone code :
+    private void ItemUpdated(MudItemDropInfo<DropUser> dropUser)
+    {
+        dropUser.Item.Identifier = dropUser.DropzoneIdentifier;
+    }
+
+    private List<DropUser> _user = new()
+    {
+        new DropUser(){ Id = "1" , Name = "Leo Tuaillon", Identifier = "Users" },
+        new DropUser(){ Id = "2" , Name = "Kevin Beaugrand", Identifier = "Members" },
+        new DropUser(){ Id = "3" , Name = "Test test", Identifier = "Users" },
+    };
+
+    public class DropUser
+    {
+        public string Id { get; init; }
+        public string Name { get; init; }
+        public string Identifier { get; set; }
+    }
+}

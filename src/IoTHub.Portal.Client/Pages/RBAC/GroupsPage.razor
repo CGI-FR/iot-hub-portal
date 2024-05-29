@@ -1,0 +1,76 @@
+﻿@page "/groups"
+
+@attribute [Authorize]
+@inject NavigationManager navigationManager
+@inject ISnackbar Snackbar
+@inject IDeviceTagSettingsClientService DeviceTagSettingsClientService
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudGrid Justify="Justify.FlexStart">
+            <MudItem xs="12">
+                <MudGrid Justify="Justify.SpaceBetween">
+                    <MudItem>
+                        <MudIcon Icon="@Icons.Material.Filled.Group" Style="color: white;" Size="Size.Large" />
+                        <MudText Typo="Typo.h6">Groups</MudText>
+                    </MudItem>
+                    <MudItem>
+                        <MudSpacer />
+                    </MudItem>
+                    <MudItem>
+                        <MudTooltip Text="Refresh list">
+                            <MudIconButton id="reload-groups" Icon="@Icons.Material.Filled.Refresh" Size="Size.Large" Class="ma-2"></MudIconButton>
+                        </MudTooltip>
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+            <MudItem xs="3">
+                <MudButton OnClick="AddGroup" Class=" mud-width-full">
+                    <MudPaper Class="mud-width-full d-flex flex-column align-center justify-center py-8">
+                        <MudAvatar Class="my-10" Style="height:90px; width:90px; font-size:2rem;" Color="Color.Secondary">
+                            <MudIcon Icon="@Icons.Material.Filled.GroupAdd" Size="Size.Large" />
+                        </MudAvatar>
+                        <MudText Class="mt-n2 mb-10" Typo="Typo.h6" Align="Align.Center">Add new Group</MudText>
+                    </MudPaper>
+                </MudButton>
+            </MudItem>
+            @for (int i = 0; i < nbGroups; i++)
+            {
+
+                <MudItem xs="3">
+                    <MudButton OnClick="Alert" Class=" mud-width-full">
+                        <MudPaper Class="mud-width-full d-flex flex-column align-center justify-center py-8">
+                            <MudAvatar Class="my-8" Style="height:90px; width:90px; font-size:2rem;" Color="Color.Primary">G</MudAvatar>
+                            <MudText Typo="Typo.h6" Align="Align.Center">TESTEE Name </MudText>
+                            <MudText Class="mt-n2 mb-8" Color="Color.Secondary" Typo="Typo.subtitle1" Align="Align.Center">11 Members</MudText>
+                        </MudPaper>
+                    </MudButton>
+                </MudItem>
+            }
+        </MudGrid>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [CascadingParameter]
+    public Error Error { get; set; } = default!;
+
+    private bool isProcessing;
+    private void AddGroup() => navigationManager.NavigateTo("/groups/new");
+
+    protected override async Task OnInitializedAsync()
+    {
+        //Todo
+    }
+    int nbGroups = 4;
+
+    private void Alert()
+    {
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
+        Snackbar.Configuration.SnackbarVariant = Variant.Filled;
+        Snackbar.Configuration.PreventDuplicates = true;
+        Snackbar.Add("This is a warning message", Severity.Warning);
+
+    }
+
+}
