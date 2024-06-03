@@ -10,7 +10,6 @@ namespace IoTHub.Portal.Client.Services
     using IoTHub.Portal.Shared.Models.v10.Filters;
     using Microsoft.AspNetCore.WebUtilities;
     using Portal.Models.v10;
-
     public class DeviceModelsClientService : IDeviceModelsClientService
     {
         private readonly HttpClient http;

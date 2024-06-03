@@ -9,12 +9,12 @@ namespace IoTHub.Portal.Server.Controllers.v10
     using IoTHub.Portal.Domain.Exceptions;
     using IoTHub.Portal.Models.v10;
     using IoTHub.Portal.Shared.Models.v10.Filters;
-    using IoTHub.Portal.Shared.Security;
-    using Microsoft.AspNetCore.Authorization;
+    //using IoTHub.Portal.Shared.Security;
+    //using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
 
-    [Authorize]
+    //[Authorize]
     [Route("api/edge/models")]
     [ApiExplorerSettings(GroupName = "IoT Edge Devices Models")]
     [ApiController]
@@ -29,7 +29,7 @@ namespace IoTHub.Portal.Server.Controllers.v10
         }
 
         [HttpGet]
-        [Authorize(Policy = Policies.GetAllEdgeModel)]
+        //[Authorize(Policy = Policies.GetAllEdgeModel)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<IoTEdgeModelListItem>>> GetEdgeModelList([FromQuery] EdgeModelFilter edgeModelFilter)
         {
@@ -37,7 +37,7 @@ namespace IoTHub.Portal.Server.Controllers.v10
         }
 
         [HttpGet("{edgeModelId}")]
-        [Authorize(Policy = Policies.GetEdgeModel)]
+        //[Authorize(Policy = Policies.GetEdgeModel)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IoTEdgeModel>> GetEdgeDeviceModel(string edgeModelId)
         {
@@ -45,7 +45,7 @@ namespace IoTHub.Portal.Server.Controllers.v10
         }
 
         [HttpPost]
-        [Authorize(Policy = Policies.CreateEdgeModel)]
+        //[Authorize(Policy = Policies.CreateEdgeModel)]
         public async Task<IActionResult> CreateEdgeModel(IoTEdgeModel EdgeModel)
         {
             await this.edgeModelService.CreateEdgeModel(EdgeModel);
@@ -54,7 +54,7 @@ namespace IoTHub.Portal.Server.Controllers.v10
         }
 
         [HttpPut]
-        [Authorize(Policy = Policies.UpdateEdgeModel)]
+        //[Authorize(Policy = Policies.UpdateEdgeModel)]
         public async Task<IActionResult> UpdateEdgeModel(IoTEdgeModel EdgeModel)
         {
             await this.edgeModelService.UpdateEdgeModel(EdgeModel);
@@ -69,7 +69,7 @@ namespace IoTHub.Portal.Server.Controllers.v10
         /// <returns>Http response</returns>
         /// <exception cref="InternalServerErrorException"></exception>
         [HttpDelete("{edgeModelId}")]
-        [Authorize(Policy = Policies.DeleteEdgeModel)]
+        //[Authorize(Policy = Policies.DeleteEdgeModel)]
         public async Task<IActionResult> DeleteModelAsync(string edgeModelId)
         {
             await this.edgeModelService.DeleteEdgeModel(edgeModelId);
@@ -83,7 +83,7 @@ namespace IoTHub.Portal.Server.Controllers.v10
         /// <param name="edgeModelId">The model identifier.</param>
         /// <returns>The avatar.</returns>
         [HttpGet("{edgeModelId}/avatar", Name = "GET edge Device model avatar URL")]
-        [Authorize(Policy = Policies.GetEdgeModelAvatar)]
+        //[Authorize(Policy = Policies.GetEdgeModelAvatar)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public virtual async Task<ActionResult<string>> GetAvatar(string edgeModelId)
@@ -98,7 +98,7 @@ namespace IoTHub.Portal.Server.Controllers.v10
         /// <param name="file">The file.</param>
         /// <returns>The avatar.</returns>
         [HttpPost("{edgeModelId}/avatar", Name = "POST Update the edge device model avatar")]
-        [Authorize(Policy = Policies.UpdateEdgeModelAvatar)]
+        //[Authorize(Policy = Policies.UpdateEdgeModelAvatar)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public virtual async Task<ActionResult<string>> ChangeAvatar(string edgeModelId, IFormFile file)
@@ -111,7 +111,7 @@ namespace IoTHub.Portal.Server.Controllers.v10
         /// </summary>
         /// <param name="edgeModelId">The model identifier.</param>
         [HttpDelete("{edgeModelId}/avatar", Name = "DELETE Remove the edge device model avatar")]
-        [Authorize(Policy = Policies.DeleteEdgeModelAvatar)]
+        //[Authorize(Policy = Policies.DeleteEdgeModelAvatar)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public virtual async Task<IActionResult> DeleteAvatar(string edgeModelId)
@@ -125,7 +125,7 @@ namespace IoTHub.Portal.Server.Controllers.v10
         /// </summary>
         /// <returns>Public edge modules</returns>
         [HttpGet("public-modules", Name = "GET edge public modules")]
-        [Authorize(Policy = Policies.GetPublicEdgeModules)]
+        //[Authorize(Policy = Policies.GetPublicEdgeModules)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public virtual async Task<ActionResult<IEnumerable<IoTEdgeModel>>> GetPublicEdgeModules()

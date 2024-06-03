@@ -4,11 +4,11 @@
 namespace IoTHub.Portal.Server.Controllers.v1._0
 {
     //using IoTHub.Portal.Shared.Security;
-    using Microsoft.AspNetCore.Authorization;
+    //using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Shared.Models.v1._0;
 
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/dashboard")]

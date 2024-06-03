@@ -8,7 +8,7 @@ namespace IoTHub.Portal.Server.Controllers.V10
     using System.Reflection;
     using Identity;
     using IoTHub.Portal.Models.v10;
-    using Microsoft.AspNetCore.Authorization;
+    //using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Options;
@@ -16,7 +16,7 @@ namespace IoTHub.Portal.Server.Controllers.V10
     //using IoTHub.Portal.Shared.Security;
 
     [ApiController]
-    [AllowAnonymous]
+    //[AllowAnonymous]
     [ApiVersion("1.0")]
     [Route("/api/settings")]
     [Produces("application/json")]

@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 namespace IoTHub.Portal.Server.Controllers.V10
 {
-    using Microsoft.AspNetCore.Authorization;
+    //using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using System.Threading.Tasks;
     using IoTHub.Portal.Application.Services;
@@ -12,7 +12,7 @@ namespace IoTHub.Portal.Server.Controllers.V10
     using Microsoft.AspNetCore.Mvc.Routing;
     using System;
 
-    [Authorize]
+    //[Authorize]
     [ApiVersion("1.0")]
     [Route("api/roles")]
     [ApiExplorerSettings(GroupName = "Role Management")]
