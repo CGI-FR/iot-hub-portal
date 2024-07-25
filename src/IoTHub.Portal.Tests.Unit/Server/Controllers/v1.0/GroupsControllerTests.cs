@@ -14,10 +14,11 @@ namespace IoTHub.Portal.Tests.Unit.Server.Controllers.v10
     using Microsoft.AspNetCore.DataProtection;
     using Microsoft.AspNetCore.Mvc;
     using IoTHub.Portal.Models.v10;
-    using IoTHub.Portal.Shared.Models.v1._0;
+    using IoTHub.Portal.Shared.Models.v10;
     using Microsoft.AspNetCore.Mvc.Routing;
     using System.Linq;
     using System;
+    using Microsoft.AspNetCore.Http;
 
     [TestFixture]
     public class GroupssControllerTests
@@ -94,6 +95,8 @@ namespace IoTHub.Portal.Tests.Unit.Server.Controllers.v10
                 (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()
             ));
 
+
+
             // Act
             var result = await groupController.Get();
 
@@ -104,6 +107,33 @@ namespace IoTHub.Portal.Tests.Unit.Server.Controllers.v10
             this.mockRepository.VerifyAll();
         }
 
+        [Test]
+        public async Task Get_ShouldReturnInternalServerErrorOnException()
+        {
+            // Arrange
+            var groupsController = CreateGroupsController();
+
+            _ = this.mockGroupService
+                .Setup(x => x.GetGroupPage(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string[]>()))
+                .ThrowsAsync(new Exception("Test exception"));
+
+            _ = this.mockLogger.Setup(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()
+            ));
+
+            // Act
+            var ex = Assert.ThrowsAsync<Exception>(async () => await groupsController.Get());
+
+            // Assert
+            Assert.IsNotNull(ex);
+            Assert.AreEqual("Test exception", ex.Message);
+
+            this.mockRepository.VerifyAll();
+        }
 
         [Test]
         public async Task GetByIdShouldReturnTheCorrespondantGroup()
@@ -151,6 +181,35 @@ namespace IoTHub.Portal.Tests.Unit.Server.Controllers.v10
         }
 
         [Test]
+        public async Task GetGroupDetailsShouldReturnNotFoundForNonExistingGroup()
+        {
+            // Arrange
+            var groupsController = CreateGroupsController();
+            var groupId = Guid.NewGuid().ToString();
+
+            _ = this.mockGroupService
+                .Setup(x => x.GetGroupDetailsAsync(It.IsAny<string>()))
+                .ReturnsAsync((GroupDetailsModel)null);
+
+            _ = this.mockLogger.Setup(x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()
+            ));
+
+            // Act
+            var result = await groupsController.GetGroupDetails(groupId);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsAssignableFrom<NotFoundResult>(result);
+
+            this.mockRepository.VerifyAll();
+        }
+
+        [Test]
         public async Task CreateGroupShouldReturnOk()
         {
             // Arrange
@@ -178,7 +237,7 @@ namespace IoTHub.Portal.Tests.Unit.Server.Controllers.v10
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsAssignableFrom<CreatedAtActionResult>(result); // Change this line
+            Assert.IsAssignableFrom<CreatedAtActionResult>(result);
 
             var createdAtActionResult = result as CreatedAtActionResult;
 
@@ -196,6 +255,38 @@ namespace IoTHub.Portal.Tests.Unit.Server.Controllers.v10
         }
 
         [Test]
+        public async Task CreateGroupShouldReturnBadRequestWhenCreationFails()
+        {
+            // Arrange
+            var groupsController = CreateGroupsController();
+            var group = new GroupDetailsModel()
+            {
+                Id = Guid.NewGuid().ToString()
+            };
+
+            _ = this.mockGroupService
+                .Setup(x => x.CreateGroupAsync(It.IsAny<GroupDetailsModel>()))
+                .Throws(new Exception());
+
+            _ = this.mockLogger.Setup(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()
+            ));
+
+            // Act
+            var result = await groupsController.CreateGroup(group);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsAssignableFrom<BadRequestResult>(result);
+
+            this.mockRepository.VerifyAll();
+        }
+
+        [Test]
         public async Task UpdateGroupShouldReturnOkResult()
         {
             // Arrange
@@ -206,7 +297,7 @@ namespace IoTHub.Portal.Tests.Unit.Server.Controllers.v10
 
             var group = new GroupDetailsModel()
             {
-                Id = groupId //test
+                Id = groupId
             };
 
             _ = this.mockLogger.Setup(x => x.Log(
@@ -230,30 +321,53 @@ namespace IoTHub.Portal.Tests.Unit.Server.Controllers.v10
             this.mockRepository.VerifyAll();
         }
 
-        /*[Test]
-        public async Task DeleteGroupShouldReturnExpectedBehavior()
+        [Test]
+        public async Task EditGroupAsync_ShouldReturnInternalServerErrorOnException()
         {
             // Arrange
             var groupsController = CreateGroupsController();
-            var deviceId = Guid.NewGuid().ToString();
+            var groupId = Guid.NewGuid().ToString();
+            var group = new GroupDetailsModel() { Id = groupId };
+
+            _ = this.mockGroupService
+                .Setup(x => x.UpdateGroup(groupId, It.IsAny<GroupDetailsModel>()))
+                .ThrowsAsync(new Exception("Test exception"));
 
             _ = this.mockLogger.Setup(x => x.Log(
-                LogLevel.Information,
+                LogLevel.Error,
                 It.IsAny<EventId>(),
                 It.IsAny<It.IsAnyType>(),
                 It.IsAny<Exception>(),
                 (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()
             ));
 
+            // Act
+            var ex = Assert.ThrowsAsync<Exception>(async () => await groupsController.EditGroupAsync(groupId, group));
+
+            // Assert
+            Assert.IsNotNull(ex);
+            Assert.AreEqual("Test exception", ex.Message);
+
+            this.mockRepository.VerifyAll();
+        }
+
+        [Test]
+        public async Task DeleteGroupShouldReturnExpectedBehavior()
+        {
+            // Arrange
+            var groupsController = CreateGroupsController();
+            var deviceId = Guid.NewGuid().ToString();
+
             _ = this.mockGroupService.Setup(c => c.DeleteGroup(It.Is<string>(x => x == deviceId)))
                 .ReturnsAsync(true);
 
-            _ = this.mockLogger.Setup(c => c.Log(
-                It.Is<LogLevel>(x => x == LogLevel.Information),
+            _ = this.mockLogger.Setup(x => x.Log(
+                It.Is<LogLevel>(l => l == LogLevel.Information),
                 It.IsAny<EventId>(),
                 It.IsAny<It.IsAnyType>(),
                 It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception, string>>()));
+                (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()
+            ));
 
             // Act
             var result = await groupsController.DeleteGroup(deviceId);
@@ -263,6 +377,34 @@ namespace IoTHub.Portal.Tests.Unit.Server.Controllers.v10
             Assert.IsAssignableFrom<OkObjectResult>(result);
 
             this.mockRepository.VerifyAll();
-        }*/
+        }
+
+        [Test]
+        public async Task DeleteGroup_ShouldReturnInternalServerErrorOnException()
+        {
+            // Arrange
+            var groupsController = CreateGroupsController();
+            var groupId = Guid.NewGuid().ToString();
+
+            _ = this.mockGroupService.Setup(c => c.DeleteGroup(It.Is<string>(x => x == groupId)))
+                .ThrowsAsync(new Exception("Test exception"));
+
+            _ = this.mockLogger.Setup(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()
+            ));
+
+            // Act
+            var ex = Assert.ThrowsAsync<Exception>(async () => await groupsController.DeleteGroup(groupId));
+
+            // Assert
+            Assert.IsNotNull(ex);
+            Assert.AreEqual("Test exception", ex.Message);
+
+            this.mockRepository.VerifyAll();
+        }
     }
 }

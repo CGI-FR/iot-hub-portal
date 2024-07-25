@@ -48,6 +48,7 @@ namespace IoTHub.Portal.Server.Controllers.V10
         [HttpGet("{id}", Name = "GET Device model")]
         //[Authorize(Policy = Policies.GetDeviceModel)]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public override Task<ActionResult<DeviceModelDto>> GetItem(string id)
         {

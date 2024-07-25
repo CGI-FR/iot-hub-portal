@@ -10,9 +10,7 @@ namespace IoTHub.Portal.Tests.Unit.Infrastructure.Repositories
     using IoTHub.Portal.Tests.Unit.UnitTests.Bases;
     using FluentAssertions;
     using NUnit.Framework;
-    using System.Collections.Generic;
-    using System;
-    using Action = Portal.Domain.Entities.Action;
+    using AutoFixture;
 
     public class AccessControlRepositoryTest : BackendUnitTest
     {
@@ -22,6 +20,10 @@ namespace IoTHub.Portal.Tests.Unit.Infrastructure.Repositories
         {
             base.Setup();
 
+            Fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
+                .ForEach(b => Fixture.Behaviors.Remove(b));
+            Fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+
             this.accessControlRepository = new AccessControlRepository(DbContext);
         }
 
@@ -29,33 +31,7 @@ namespace IoTHub.Portal.Tests.Unit.Infrastructure.Repositories
         public async Task GetAllShouldReturnExpectedAccessControls()
         {
             // Arrange
-            var expectedAccessControls = new List<AccessControl>
-            {
-                new AccessControl
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Role = new Role()
-                    {
-                        Name = "Role 1",
-                        Description = "This is a test role",
-                        Actions = new List<Action>()
-                    },
-                    Principal = new Principal(),
-                    Scope = "example/test"
-                },
-                new AccessControl
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Role = new Role()
-                    {
-                        Name = "Role 2",
-                        Description = "This is a test role",
-                        Actions = new List<Action>()
-                    },
-                    Principal = new Principal(),
-                    Scope = "example/test"
-                }
-            };
+            var expectedAccessControls = Fixture.CreateMany<AccessControl>(2).ToList();
 
             await DbContext.AddRangeAsync(expectedAccessControls);
 
@@ -72,18 +48,7 @@ namespace IoTHub.Portal.Tests.Unit.Infrastructure.Repositories
         public async Task GetByIdAsync_ExistingAccessControl_ReturnsExpectedAccessControl()
         {
             // Arrange
-            var expectedAccessControl = new AccessControl
-            {
-                Id = Guid.NewGuid().ToString(),
-                Role = new Role()
-                {
-                    Name = "Role 1",
-                    Description = "This is a test role",
-                    Actions = new List<Action>()
-                },
-                Principal = new Principal(),
-                Scope = "example/test"
-
+            var expectedAccessControl = Fixture.Create<AccessControl>();
 
             };
             _ = DbContext.Add(expectedAccessControl);

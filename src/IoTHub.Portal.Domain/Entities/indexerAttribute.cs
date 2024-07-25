@@ -5,7 +5,7 @@ namespace IoTHub.Portal.Domain.Entities
 {
     using System;
 
-    internal class indexerAttribute : Attribute
+    internal class IndexerAttribute : Attribute
     {
     }
 }

@@ -10,8 +10,7 @@ namespace IoTHub.Portal.Tests.Unit.Infrastructure.Repositories
     using IoTHub.Portal.Tests.Unit.UnitTests.Bases;
     using FluentAssertions;
     using NUnit.Framework;
-    using System.Collections.Generic;
-    using System;
+    using AutoFixture;
 
     public class UserRepositoryTest : BackendUnitTest
     {
@@ -20,6 +19,10 @@ namespace IoTHub.Portal.Tests.Unit.Infrastructure.Repositories
         public override void Setup()
         {
             base.Setup();
+
+            Fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
+                .ForEach(b => Fixture.Behaviors.Remove(b));
+            Fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
             this.userRepository = new UserRepository(DbContext);
         }
@@ -47,8 +50,9 @@ namespace IoTHub.Portal.Tests.Unit.Infrastructure.Repositories
                 }
             };
             // Arrange
-            await DbContext.AddRangeAsync(expectedUsers);
+            var expectedUsers = Fixture.CreateMany<User>(2).ToList();
 
+            await DbContext.AddRangeAsync(expectedUsers);
             _ = await DbContext.SaveChangesAsync();
 
             //Act
@@ -62,14 +66,7 @@ namespace IoTHub.Portal.Tests.Unit.Infrastructure.Repositories
         public async Task GetByIdAsync_ExistingUser_ReturnsExpectedUser()
         {
             // Arrange
-            var expectedUser = new User
-            {
-                Id = Guid.NewGuid().ToString(),
-                GivenName = "User 1",
-                Email = "example@test.com",
-                Groups = new List<Group>(),
-                Principal = new Principal()
-            };
+            var expectedUser = Fixture.Create<User>();
 
             _ = DbContext.Add(expectedUser);
 

@@ -61,6 +61,7 @@ namespace IoTHub.Portal.Server.Controllers.v10
 
 
         [HttpPut(Name = "PUT Update Device configuration")]
+        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task UpdateConfig(DeviceConfig deviceConfig)
         {

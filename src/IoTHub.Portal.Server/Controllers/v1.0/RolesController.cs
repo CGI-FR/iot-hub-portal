@@ -84,8 +84,9 @@ namespace IoTHub.Portal.Server.Controllers.V10
             }
             catch (Exception ex)
             {
-                logger.LogError("Error fetching roles.");
-                throw ex; // Rethrowing the exception (preserves the stack trace)
+                logger.LogError($"Error fetching roles. : {ex}");
+                throw;
+                // Rethrowing the exception (preserves the stack trace)
             }
         }
 
@@ -136,7 +137,7 @@ namespace IoTHub.Portal.Server.Controllers.V10
             }
             catch (Exception ex)
             {
-                logger.LogError("Failed to create role. : ", ex);
+                logger.LogError($"Failed to create role. : {ex}");
                 return BadRequest(ex);
             }
         }

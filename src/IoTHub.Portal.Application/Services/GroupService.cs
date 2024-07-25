@@ -9,7 +9,6 @@ namespace IoTHub.Portal.Application.Services
     using IoTHub.Portal.Domain.Entities;
     using IoTHub.Portal.Domain.Exceptions;
     using IoTHub.Portal.Domain.Repositories;
-    using IoTHub.Portal.Shared.Models.v1._0;
     using IoTHub.Portal.Shared.Models.v10;
     using IoTHub.Portal.Shared.Models.v10.Filters;
     using System.Threading.Tasks;
@@ -77,10 +76,14 @@ namespace IoTHub.Portal.Application.Services
 
         public async Task<GroupDetailsModel> CreateGroupAsync(GroupDetailsModel group)
         {
+            if (group is null)
+            {
+                throw new ArgumentNullException(nameof(group));
+            }
             var existingName = await this.groupRepository.GetByNameAsync(group.Name);
             if (existingName is not null)
             {
-                throw new ResourceAlreadyExistsException($"The Group tis the name {group.Name} already exist !");
+                throw new ResourceAlreadyExistsException($"The Group with the name {group.Name} already exist !");
             }
             var groupEntity = this.mapper.Map<Group>(group);
             await groupRepository.InsertAsync(groupEntity);
@@ -95,7 +98,7 @@ namespace IoTHub.Portal.Application.Services
             var group = await groupRepository.GetByIdAsync(id);
             if (group is null)
             {
-                throw new ResourceNotFoundException($"The Group with the id {id} that you want to delete does'nt exist !");
+                throw new ResourceNotFoundException($"The Group with the id {id} that you want to delete doesn't exist !");
             }
             principalRepository.Delete(group.PrincipalId);
             groupRepository.Delete(id);
@@ -105,6 +108,10 @@ namespace IoTHub.Portal.Application.Services
 
         public async Task<GroupDetailsModel?> UpdateGroup(string id, GroupDetailsModel group)
         {
+            if (group is null)
+            {
+                throw new ArgumentNullException(nameof(group));
+            }
             var groupEntity = await this.groupRepository.GetByIdAsync(id);
             if (groupEntity is null) throw new ResourceNotFoundException($"The group with id {id} does'nt exist");
             var existingName = await this.groupRepository.GetByNameAsync(group.Name);
@@ -113,7 +120,7 @@ namespace IoTHub.Portal.Application.Services
                 throw new ResourceAlreadyExistsException($"The Group tis the name {group.Name} already exist !");
             }
             groupEntity.Name = group.Name;
-            groupEntity.Avatar = group.Avatar;
+            groupEntity.Color = group.Color;
             groupEntity.Description = group.Description;
             this.groupRepository.Update(groupEntity);
             await this.unitOfWork.SaveAsync();

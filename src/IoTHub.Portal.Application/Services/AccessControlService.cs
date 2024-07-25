@@ -8,7 +8,6 @@ namespace IoTHub.Portal.Application.Services
     using IoTHub.Portal.Domain;
     using IoTHub.Portal.Domain.Entities;
     using IoTHub.Portal.Domain.Repositories;
-    using IoTHub.Portal.Shared.Models.v1._0;
     using IoTHub.Portal.Shared.Models.v10;
     using IoTHub.Portal.Shared.Models.v10.Filters;
     using IoTHub.Portal.Domain.Exceptions;
@@ -68,7 +67,7 @@ namespace IoTHub.Portal.Application.Services
                 acPredicate = acPredicate.And(ac => ac.PrincipalId == principalId);
             }
 
-            var paginatedAc = await this.accessControlRepository.GetPaginatedListWithDetailsAsync(
+            var paginatedAc = await this.accessControlRepository.GetPaginatedListAsync(
                 pageNumber,
                 pageSize,
                 orderBy,
@@ -87,6 +86,10 @@ namespace IoTHub.Portal.Application.Services
 
         public async Task<AccessControlModel> CreateAccessControl(AccessControlModel accessControl)
         {
+            if (accessControl is null)
+            {
+                throw new ArgumentNullException(nameof(accessControl));
+            }
             var principal = await this.principalRepository.GetByIdAsync(accessControl.PrincipalId);
             if (principal == null)
             {
@@ -106,21 +109,12 @@ namespace IoTHub.Portal.Application.Services
             return createdModel;
 
         }
-
-        public async Task<bool> DeleteAccessControl(string id)
-        {
-            var acEntity = await this.accessControlRepository.GetByIdAsync(id);
-            if (acEntity is null)
-            {
-                throw new ResourceNotFoundException($"The AccessControl with the id {id} doesn't exist");
-            }
-            accessControlRepository.Delete(id);
-            await this.unitOfWork.SaveAsync();
-            return true;
-        }
-
         public async Task<AccessControlModel?> UpdateAccessControl(string id, AccessControlModel accessControl)
         {
+            if (accessControl is null)
+            {
+                throw new ArgumentNullException(nameof(accessControl));
+            }
             var acEntity = await this.accessControlRepository.GetByIdAsync(id, ac => ac.Role);
             if (acEntity is null)
             {
@@ -144,6 +138,18 @@ namespace IoTHub.Portal.Application.Services
 
             var createdAc = await this.accessControlRepository.GetByIdAsync(id, ac => ac.Role);
             return this.mapper.Map<AccessControlModel>(createdAc);
+        }
+
+        public async Task<bool> DeleteAccessControl(string id)
+        {
+            var acEntity = await this.accessControlRepository.GetByIdAsync(id);
+            if (acEntity is null)
+            {
+                throw new ResourceNotFoundException($"The AccessControl with the id {id} doesn't exist");
+            }
+            accessControlRepository.Delete(id);
+            await this.unitOfWork.SaveAsync();
+            return true;
         }
     }
 }

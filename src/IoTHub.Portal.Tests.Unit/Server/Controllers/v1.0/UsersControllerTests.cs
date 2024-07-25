@@ -14,7 +14,7 @@ namespace IoTHub.Portal.Tests.Unit.Server.Controllers.v10
     using Microsoft.AspNetCore.DataProtection;
     using Microsoft.AspNetCore.Mvc;
     using IoTHub.Portal.Models.v10;
-    using IoTHub.Portal.Shared.Models.v1._0;
+    using IoTHub.Portal.Shared.Models.v10;
     using Microsoft.AspNetCore.Mvc.Routing;
     using System.Linq;
     using System;
@@ -107,6 +107,40 @@ namespace IoTHub.Portal.Tests.Unit.Server.Controllers.v10
 
 
         [Test]
+        public async Task Get_ShouldReturnInternalServerErrorOnException()
+        {
+            // Arrange
+            var usersController = CreateUsersController();
+
+            _ = this.mockUserService
+                .Setup(x => x.GetUserPage(
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<int>(),
+                    It.IsAny<int>(),
+                    It.IsAny<string[]>()
+                ))
+                .ThrowsAsync(new Exception("Test exception"));
+
+            _ = this.mockLogger.Setup(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()
+            ));
+
+            // Act
+            var ex = Assert.ThrowsAsync<Exception>(async () => await usersController.Get());
+
+            // Assert
+            Assert.IsNotNull(ex);
+            Assert.AreEqual("Test exception", ex.Message);
+
+            this.mockRepository.VerifyAll();
+        }
+
+        [Test]
         public async Task GetByIdShouldReturnTheCorrespondantUser()
         {
             // Arrange
@@ -153,6 +187,35 @@ namespace IoTHub.Portal.Tests.Unit.Server.Controllers.v10
         }
 
         [Test]
+        public async Task GetUserDetailsShouldReturnNotFoundForNonExistingGroup()
+        {
+            // Arrange
+            var userController = CreateUsersController();
+            var userId = Guid.NewGuid().ToString();
+
+            _ = this.mockUserService
+                .Setup(x => x.GetUserDetailsAsync(It.IsAny<string>()))
+                .ReturnsAsync((UserDetailsModel)null);
+
+            _ = this.mockLogger.Setup(x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()
+            ));
+
+            // Act
+            var result = await userController.GetUserDetails(userId);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsAssignableFrom<NotFoundResult>(result);
+
+            this.mockRepository.VerifyAll();
+        }
+
+        [Test]
         public async Task CreateUserShouldReturnOk()
         {
             // Arrange
@@ -180,7 +243,7 @@ namespace IoTHub.Portal.Tests.Unit.Server.Controllers.v10
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsAssignableFrom<CreatedAtActionResult>(result); // Change this line
+            Assert.IsAssignableFrom<CreatedAtActionResult>(result);
 
             var createdAtActionResult = result as CreatedAtActionResult;
 
@@ -198,6 +261,38 @@ namespace IoTHub.Portal.Tests.Unit.Server.Controllers.v10
         }
 
         [Test]
+        public async Task CreateUserShouldReturnBadRequestWhenCreationFails()
+        {
+            // Arrange
+            var userController = CreateUsersController();
+            var user = new UserDetailsModel()
+            {
+                Id = Guid.NewGuid().ToString()
+            };
+
+            _ = this.mockUserService
+                .Setup(x => x.CreateUserAsync(It.IsAny<UserDetailsModel>()))
+                .Throws(new Exception());
+
+            _ = this.mockLogger.Setup(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()
+            ));
+
+            // Act
+            var result = await userController.CreateUser(user);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsAssignableFrom<BadRequestResult>(result);
+
+            this.mockRepository.VerifyAll();
+        }
+
+        [Test]
         public async Task UpdateUserShouldReturnOkResult()
         {
             // Arrange
@@ -208,7 +303,7 @@ namespace IoTHub.Portal.Tests.Unit.Server.Controllers.v10
 
             var user = new UserDetailsModel()
             {
-                Id = userId //test
+                Id = userId
             };
 
             _ = this.mockLogger.Setup(x => x.Log(
@@ -232,20 +327,42 @@ namespace IoTHub.Portal.Tests.Unit.Server.Controllers.v10
             this.mockRepository.VerifyAll();
         }
 
-        /*[Test]
-        public async Task DeleteUserShouldReturnExpectedBehavior()
+        [Test]
+        public async Task EditUserAsync_ShouldReturnInternalServerErrorOnException()
         {
             // Arrange
             var usersController = CreateUsersController();
-            var deviceId = Guid.NewGuid().ToString();
+            var userId = Guid.NewGuid().ToString();
+            var user = new UserDetailsModel() { Id = userId };
+
+            _ = this.mockUserService
+                .Setup(x => x.UpdateUser(userId, It.IsAny<UserDetailsModel>()))
+                .ThrowsAsync(new Exception("Test exception"));
 
             _ = this.mockLogger.Setup(x => x.Log(
-                LogLevel.Information,
+                LogLevel.Error,
                 It.IsAny<EventId>(),
                 It.IsAny<It.IsAnyType>(),
                 It.IsAny<Exception>(),
                 (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()
             ));
+
+            // Act
+            var ex = Assert.ThrowsAsync<Exception>(async () => await usersController.EditUserAsync(userId, user));
+
+            // Assert
+            Assert.IsNotNull(ex);
+            Assert.AreEqual("Test exception", ex.Message);
+
+            this.mockRepository.VerifyAll();
+        }
+
+        [Test]
+        public async Task DeleteUserShouldReturnExpectedBehavior()
+        {
+            // Arrange
+            var usersController = CreateUsersController();
+            var deviceId = Guid.NewGuid().ToString();
 
             _ = this.mockUserService.Setup(c => c.DeleteUser(It.Is<string>(x => x == deviceId)))
                 .ReturnsAsync(true);
@@ -265,6 +382,34 @@ namespace IoTHub.Portal.Tests.Unit.Server.Controllers.v10
             Assert.IsAssignableFrom<OkObjectResult>(result);
 
             this.mockRepository.VerifyAll();
-        }*/
+        }
+
+        [Test]
+        public async Task DeleteUser_ShouldReturnInternalServerErrorOnException()
+        {
+            // Arrange
+            var usersController = CreateUsersController();
+            var userId = Guid.NewGuid().ToString();
+
+            _ = this.mockUserService.Setup(c => c.DeleteUser(It.Is<string>(x => x == userId)))
+                .ThrowsAsync(new Exception("Test exception"));
+
+            _ = this.mockLogger.Setup(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()
+            ));
+
+            // Act
+            var ex = Assert.ThrowsAsync<Exception>(async () => await usersController.DeleteUser(userId));
+
+            // Assert
+            Assert.IsNotNull(ex);
+            Assert.AreEqual("Test exception", ex.Message);
+
+            this.mockRepository.VerifyAll();
+        }
     }
 }

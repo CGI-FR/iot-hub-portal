@@ -10,8 +10,7 @@ namespace IoTHub.Portal.Tests.Unit.Infrastructure.Repositories
     using IoTHub.Portal.Tests.Unit.UnitTests.Bases;
     using FluentAssertions;
     using NUnit.Framework;
-    using System.Collections.Generic;
-    using System;
+    using AutoFixture;
 
     public class GroupRepositoryTest : BackendUnitTest
     {
@@ -21,6 +20,10 @@ namespace IoTHub.Portal.Tests.Unit.Infrastructure.Repositories
         {
             base.Setup();
 
+            Fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
+                .ForEach(b => Fixture.Behaviors.Remove(b));
+            Fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+
             this.groupRepository = new GroupRepository(DbContext);
         }
 
@@ -29,24 +32,7 @@ namespace IoTHub.Portal.Tests.Unit.Infrastructure.Repositories
         {
 
             // Arrange
-            var expectedGroups = new List<Group>
-            {
-                new Group
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Name = "Group 1",
-                    Members = new List<User>(),
-                    Principal = new Principal()
-                },
-                new Group
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Name = "Group 2",
-                    Members = new List<User>(),
-                    Principal = new Principal()
-                }
-            };
-
+            var expectedGroups = Fixture.CreateMany<Group>(2).ToList();
 
             await DbContext.AddRangeAsync(expectedGroups);
 
@@ -63,13 +49,7 @@ namespace IoTHub.Portal.Tests.Unit.Infrastructure.Repositories
         public async Task GetByIdAsync_ExistingGroup_ReturnsExpectedGroup()
         {
             // Arrange
-            var expectedGroup = new Group
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = "Test Group",
-                Members = new List<User>(),
-                Principal = new Principal()
-            };
+            var expectedGroup = Fixture.Create<Group>();
 
             _ = DbContext.Add(expectedGroup);
 
