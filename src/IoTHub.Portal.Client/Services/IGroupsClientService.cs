@@ -9,6 +9,5 @@ namespace IoTHub.Portal.Client.Services
     public interface IGroupsClientService
     {
         Task<PaginationResult<GroupModel>> GetGroups(string continuationUri);
-
     }
 }
