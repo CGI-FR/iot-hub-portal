@@ -8,16 +8,16 @@ namespace IoTHub.Portal.Client.Services
     using System.Threading.Tasks;
     using IoTHub.Portal.Shared.Models.v10;
 
+
     public class GroupsClientService : IGroupsClientService
     {
         private readonly HttpClient http;
-
         public GroupsClientService(HttpClient http)
         {
             this.http = http;
         }
 
-        public Task<PaginationResult<GroupModel>> GetDevices(string continuationUri)
+        public Task<PaginationResult<GroupModel>> GetGroups(string continuationUri)
         {
             return this.http.GetFromJsonAsync<PaginationResult<GroupModel>>(continuationUri)!;
         }

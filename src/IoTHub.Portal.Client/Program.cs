@@ -72,8 +72,8 @@ _ = builder.Services.AddMudServices(config =>
 _ = builder.Services.AddScoped<ILayoutService, LayoutService>();
 _ = builder.Services.AddScoped<IDashboardLayoutService, DashboardLayoutService>();
 _ = builder.Services.AddSingleton<IDeviceLayoutService, DeviceLayoutService>();
-_ = builder.Services.AddSingleton<IEdgeDeviceLayoutService, EdgeDeviceLayoutService>();
-
+_ = builder.Services.AddScoped<IGroupsClientService, GroupsClientService>();
+_ = builder.Services.AddScoped<IEdgeModelClientService, EdgeModelClientService>();
 _ = builder.Services.AddScoped<IEdgeModelClientService, EdgeModelClientService>();
 _ = builder.Services.AddScoped<IEdgeDeviceClientService, EdgeDeviceClientService>();
 _ = builder.Services.AddScoped<IDashboardMetricsClientService, DashboardMetricsClientService>();

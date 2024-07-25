@@ -1,5 +1,6 @@
 ﻿@page "/groupsList"
 
+@using IoTHub.Portal.Shared.Models.v10
 @using IoTHub.Portal.Shared.Models.v10.Filters;
 @using Microsoft.AspNetCore.Authorization
 @using IoTHub.Portal.Models.v10
@@ -7,7 +8,7 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 
 @attribute [Authorize]
-@inject IEdgeModelClientService EdgeModelService
+@inject IGroupsClientService GroupClientService
 @inject IDialogService dialogService
 @inject NavigationManager NavigationManager
 
@@ -16,7 +17,7 @@
         <EdgeModelSearch OnSearch=@Search />
     </MudItem>
     <MudItem xs="12">
-        <MudTable T="IoTEdgeModelListItem" Items="@EdgeModelList" Loading="IsLoading" Dense=true OnRowClick="@((e) => GoToDetails(e.Item))" Hover=true Bordered=true Striped=true RowStyle="cursor: pointer;">
+        <MudTable T="GroupModel" Items="@GroupModelList" Loading="IsLoading" Dense=true OnRowClick="@((e) => GoToDetails(e.Item))" Hover=true Bordered=true Striped=true RowStyle="cursor: pointer;">
             <ColGroup>
                 <col style="width: 5%;" />
                 <col style="width: 30%;" />
@@ -25,7 +26,7 @@
                 <col style="width: 5%;" />
             </ColGroup>
             <ToolBarContent>
-                <MudText Typo="Typo.h6">Edge Models</MudText>
+                <MudText Typo="Typo.h6">Groups</MudText>
                 <MudSpacer />
                 <MudTooltip Text="Refresh list">
                     <MudIconButton Icon="@Icons.Material.Filled.Refresh" Size="Size.Medium" id="tableRefreshButton" OnClick="@LoadEdgeModels" Class="ma-2"></MudIconButton>
@@ -36,14 +37,14 @@
             </ToolBarContent>
             <HeaderContent>
                 <MudTh></MudTh>
-                <MudTh><MudTableSortLabel SortBy="new Func<IoTEdgeModelListItem, object>(x => x.Name)" id="NameLabel" >Name</MudTableSortLabel></MudTh>
-                <MudTh Style="text-align: center"><MudTableSortLabel SortBy="new Func<IoTEdgeModelListItem, object>(x => x.Description)" id="DescriptionLabel">Description</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<IoTEdgeModelListItem, object>(x => x.Name)" id="NameLabel">Name</MudTableSortLabel></MudTh>
+                <MudTh Style="text-align: center"><MudTableSortLabel SortBy="new Func<IoTEdgeModelListItem, object>(x => x.Description)" id="DescriptionLabel">Principal Id</MudTableSortLabel></MudTh>
                 <MudTh Style="text-align: center">Details</MudTh>
                 <MudTh Style="text-align: center">Delete</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd Style="text-align: center">
-                    <img height="25" src="@context.ImageUrl" />
+                    <img height="25" src="" />
                 </MudTd>
                 <MudTd DataLabel="Name">
                     <MudItem>
@@ -51,12 +52,9 @@
                             @context.Name
                         </MudText>
                     </MudItem>
-                    <MudItem>
-                        <Labels Items="@context.Labels" />
-                    </MudItem>
                 </MudTd>
                 <MudTd DataLabel="Description" Style="word-break: break-all; ">
-                    @context.Description
+                    @context.PrincipalId
                 </MudTd>
                 <MudTd DataLabel="Details" Style="text-align: center">
                     <MudTooltip Text="Go to the detail">
@@ -86,7 +84,7 @@
     [CascadingParameter]
     public Error Error { get; set; } = default!;
 
-    private List<IoTEdgeModelListItem> EdgeModelList = new List<IoTEdgeModelListItem>();
+    private List<GroupModel> GroupModelList = new List<GroupModel>();
 
     private bool IsLoading { get; set; } = true;
     private readonly int[] pageSizeOptions = { 3, 5, 10 };
@@ -103,10 +101,8 @@
         try
         {
             IsLoading = true;
-            EdgeModelList = await EdgeModelService.GetIoTEdgeModelList(new EdgeModelFilter
-            {
-                Keyword = searchKeyword
-            });
+            var query = await GroupClientService.GetGroups("api/groups");
+            GroupModelList = query.Items.ToList();
         }
         catch (ProblemDetailsException exception)
         {
@@ -127,12 +123,12 @@
 
     public void RedirectToCreatePage()
     {
-        NavigationManager.NavigateTo("/edge/models/new");
+        NavigationManager.NavigateTo("/groups/new");
     }
 
-    private async Task DeleteDeviceModel(IoTEdgeModelListItem ioTEdgeModel)
+    private async Task DeleteDeviceModel(GroupModel ioTEdgeModel)
     {
-        var parameters = new DialogParameters();
+        @*var parameters = new DialogParameters();
         parameters.Add("deviceModelID", ioTEdgeModel.ModelId);
         parameters.Add("deviceModelName", ioTEdgeModel.Name);
         var result = await dialogService.Show<DeleteEdgeModelDialog>("Confirm Deletion", parameters).Result;
@@ -142,11 +138,13 @@
             return;
         }
 
-        await this.LoadEdgeModels();
+        await this.LoadEdgeModels();*@
+        throw new NotImplementedException();
     }
 
-    private void GoToDetails(IoTEdgeModelListItem item)
+    private void GoToDetails(GroupModel item)
     {
-        NavigationManager.NavigateTo($"/edge/models/{item.ModelId}");
+        @*NavigationManager.NavigateTo($"/edge/models/{item.ModelId}");*@
+        throw new NotImplementedException();
     }
 }
