@@ -150,7 +150,6 @@ namespace IoTHub.Portal.Server.Controllers.V10
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteGroup(string id)
         {
-            return Ok(await groupManagementService.DeleteGroup(id));
             try
             {
                 var result =await groupManagementService.DeleteGroup(id);

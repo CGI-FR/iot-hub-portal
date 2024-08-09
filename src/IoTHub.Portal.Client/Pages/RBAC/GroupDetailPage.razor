@@ -1,4 +1,4 @@
-﻿@page "/groups/new"
+﻿@page "/groups/{groupId}"
 
 @using IoTHub.Portal.Client.Services
 @using IoTHub.Portal.Shared.Models.v10
@@ -9,8 +9,9 @@
 @inject IGroupsClientService GroupsClientService
 @inject ISnackbar Snackbar
 @inject NavigationManager NavigationManager
+@inject ILogger<GroupDetailPage> Logger
 
-<MudText Typo="Typo.h5" Color="Color.Primary" Class="mb-4">Create a Group :</MudText>
+<MudText Typo="Typo.h5" Color="Color.Primary" Class="mb-4">Edit Group :</MudText>
 <MudForm Model="@Group" @ref="form">
     <MudGrid>
         <MudItem xs="12">
@@ -80,23 +81,37 @@
 </MudForm>
 
 @code {
+    [Parameter] public string groupId { get; set; }
     private GroupDetailsModel Group = new GroupDetailsModel();
     private MudForm form;
     private bool isProcessing = false;
     private string saveButtonText = "Save";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Group = await GroupsClientService.GetGroup(groupId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error loading group details");
+            Snackbar.Add($"Error loading group details: {ex.Message}", Severity.Error);
+        }
+    }
 
     private async Task Save()
     {
         isProcessing = true;
         try
         {
-            await GroupsClientService.CreateGroup(Group);
-            Snackbar.Add($"Group {Group.Name} has been successfully created !", Severity.Success);
-            NavigationManager.NavigateTo("/group");
+            await GroupsClientService.UpdateGroup(groupId, Group);
+            Snackbar.Add($"Group {Group.Name} has been successfully updated!", Severity.Success);
+            NavigationManager.NavigateTo("/groups");
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Error while creating the group : {ex.Message}", Severity.Error);
+            Snackbar.Add($"Error while updating the group: {ex.Message}", Severity.Error);
         }
         finally
         {

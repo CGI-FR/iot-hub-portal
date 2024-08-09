@@ -1,4 +1,4 @@
-﻿@page "/groups/new"
+﻿@page "/roles/new"
 
 @using IoTHub.Portal.Client.Services
 @using IoTHub.Portal.Shared.Models.v10
@@ -6,12 +6,12 @@
 @using MudBlazor
 
 @attribute [Authorize]
-@inject IGroupsClientService GroupsClientService
+@inject IRoleClientService RoleClientService
 @inject ISnackbar Snackbar
 @inject NavigationManager NavigationManager
 
-<MudText Typo="Typo.h5" Color="Color.Primary" Class="mb-4">Create a Group :</MudText>
-<MudForm Model="@Group" @ref="form">
+<MudText Typo="Typo.h5" Color="Color.Primary" Class="mb-4">Create a Role :</MudText>
+<MudForm Model="@Role" @ref="form">
     <MudGrid>
         <MudItem xs="12">
             <MudTabs Elevation="1" Rounded="true" PanelClass="mt-6 scrollable-tab-content">
@@ -24,21 +24,21 @@
                                     <ChildContent>
                                         <MudGrid>
                                             <MudItem xs="12" md="6">
-                                                <MudAvatar Style="@($"background-color: {Group.Color}; color: white;")" Size="Size.Large" Class="mr-2">
-                                                    @if (!string.IsNullOrEmpty(Group.Name))
+                                                <MudAvatar Style="@($"background-color: {Role.Color}; color: white;")" Size="Size.Large" Class="mr-2">
+                                                    @if (!string.IsNullOrEmpty(Role.Name))
                                                     {
-                                                        @Group.Name[0].ToString().ToUpper()
+                                                        @Role.Name[0].ToString().ToUpper()
                                                     }
                                                 </MudAvatar>
                                             </MudItem>
                                             <MudItem xs="12" md="6">
-                                                <MudTextField T="string" Label="Name" @bind-Value="Group.Name" Required="true" />
+                                                <MudTextField T="string" Label="Name" @bind-Value="Role.Name" Required="true" />
                                             </MudItem>
                                             <MudItem xs="12" md="6">
-                                                <MudTextField T="string" Label="Description" @bind-Value="Group.Description" />
+                                                <MudTextField T="string" Label="Description" @bind-Value="Role.Description" />
                                             </MudItem>
                                             <MudItem xs="12" md="6">
-                                                <MudColorPicker Label="Color" @bind-Text="Group.Color" Style="@($"color: {Group.Color};")" Placeholder="Select Color" />
+                                                <MudColorPicker Label="Color" @bind-Text="Role.Color" Style="@($"color: {Role.Color};")" Placeholder="Select Color" />
                                             </MudItem>
                                         </MudGrid>
                                     </ChildContent>
@@ -72,15 +72,15 @@
             </MudTabs>
         </MudItem>
         <MudItem xs="12" Class="d-flex justify-center py-2 px-1 mt-4">
-            <MudButtonGroup Color="Color.Primary" Variant="Variant.Filled">
+            <MudButtonRole Color="Color.Primary" Variant="Variant.Filled">
                 <MudButton id="SaveButton" OnClick="Save" Disabled="isProcessing">@saveButtonText</MudButton>
-            </MudButtonGroup>
+            </MudButtonRole>
         </MudItem>
     </MudGrid>
 </MudForm>
 
 @code {
-    private GroupDetailsModel Group = new GroupDetailsModel();
+    private RoleDetailsModel Role = new RoleDetailsModel();
     private MudForm form;
     private bool isProcessing = false;
     private string saveButtonText = "Save";
@@ -90,13 +90,13 @@
         isProcessing = true;
         try
         {
-            await GroupsClientService.CreateGroup(Group);
-            Snackbar.Add($"Group {Group.Name} has been successfully created !", Severity.Success);
-            NavigationManager.NavigateTo("/group");
+            await RoleClientService.CreateRole(Role);
+            Snackbar.Add($"Role {Role.Name} has been successfully created !", Severity.Success);
+            NavigationManager.NavigateTo("/role");
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Error while creating the group : {ex.Message}", Severity.Error);
+            Snackbar.Add($"Error while creating the role : {ex.Message}", Severity.Error);
         }
         finally
         {

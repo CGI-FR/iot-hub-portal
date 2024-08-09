@@ -1,4 +1,4 @@
-﻿@page "/roles"
+﻿@page "/groups"
 
 @using IoTHub.Portal.Client.Dialogs.RBAC
 @using IoTHub.Portal.Shared.Models.v10
@@ -7,11 +7,11 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 
 @attribute [Authorize]
-@inject IRoleClientService RoleClientService
+@inject IGroupsClientService GroupClientService
 @inject IDialogService dialogService
 @inject NavigationManager NavigationManager
 
-<MudTable T="RoleModel" ServerData="ServerReload" Dense="true" Hover="true" @ref="table">
+<MudTable T="GroupModel" ServerData="ServerReload" Dense="true" Hover="true" @ref="table">
     <ColGroup>
         <col style="width: 5%;" />
         <col style="width: 15%;" />
@@ -62,7 +62,7 @@
         </MudTd>
         <MudTd DataLabel="Delete" Style="text-align: center">
             <MudTooltip Text="Delete group">
-                <MudIconButton Color="Color.Default" Icon="@Icons.Material.Filled.Delete" OnClick="@(async () => await DeleteRole(context))" Size="Size.Medium" id="deleteButton"></MudIconButton>
+                <MudIconButton Color="Color.Default" Icon="@Icons.Material.Filled.Delete" OnClick="@(async () => await DeleteGroup(context))" Size="Size.Medium" id="deleteButton"></MudIconButton>
             </MudTooltip>
         </MudTd>
     </RowTemplate>
@@ -78,20 +78,20 @@
 </MudTable>
 
 @code {
-    private IEnumerable<RoleModel> pagedData;
-    private MudTable<RoleModel> table;
+    private IEnumerable<GroupModel> pagedData;
+    private MudTable<GroupModel> table;
 
     private int totalItems;
     private string searchString = null;
 
     private readonly int[] pageSizeOptions = { 3, 5, 10 };
 
-    private async Task<TableData<RoleModel>> ServerReload(TableState state)
+    private async Task<TableData<GroupModel>> ServerReload(TableState state)
     {
-        var query = await RoleClientService.GetRoles($"api/roles?pageNumber={state.Page}&pageSize={state.PageSize}");
-        IEnumerable<RoleModel> data = query.Items;
+        var query = await GroupClientService.GetGroups($"api/groups?pageNumber={state.Page}&pageSize={state.PageSize}");
+        IEnumerable<GroupModel> data = query.Items;
         totalItems = query.TotalItems;
-        return new TableData<RoleModel>() { TotalItems = totalItems, Items = data };
+        return new TableData<GroupModel>() { TotalItems = totalItems, Items = data };
     }
 
     private void OnSearch(string text)
@@ -105,11 +105,11 @@
         table.ReloadServerData();
     }
 
-    private async Task DeleteRole(RoleModel item)
+    private async Task DeleteGroup(GroupModel item)
     {
         var parameters = new DialogParameters();
-        parameters.Add("roleId", item.Id);
-        var result = await dialogService.Show<RoleDeleteConfirm>("Confirm Deletion", parameters).Result;
+        parameters.Add("groupId", item.Id);
+        var result = await dialogService.Show<GroupDeleteConfirm>("Confirm Deletion", parameters).Result;
 
         if (result.Canceled)
         {
@@ -119,13 +119,13 @@
         this.HandleRefresh();
     }
 
-    private void GoToDetails(RoleModel item)
+    private void GoToDetails(GroupModel item)
     {
-        NavigationManager.NavigateTo($"/roles/{item.Id}");
+        NavigationManager.NavigateTo($"/groups/{item.Id}");
     }
 
     public void RedirectToCreatePage()
     {
-        NavigationManager.NavigateTo("/roles/new");
+        NavigationManager.NavigateTo("/groups/new");
     }
 }
