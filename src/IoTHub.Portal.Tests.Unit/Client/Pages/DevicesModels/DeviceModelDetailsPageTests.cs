@@ -22,6 +22,7 @@ namespace IoTHub.Portal.Tests.Unit.Client.Pages.DevicesModels
     using System.Linq;
     using System.Threading.Tasks;
     using Portal.Client.Pages.DeviceModels;
+    using Portal.Shared.Constants;
     using UnitTests.Bases;
     using UnitTests.Mocks;
 
@@ -86,7 +87,7 @@ namespace IoTHub.Portal.Tests.Unit.Client.Pages.DevicesModels
 
             // Act
             var cut = RenderComponent<DeviceModelDetailPage>
-                    (ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.ModelID), this.mockModelId));
+                    (ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.ModelId), this.mockModelId));
             var saveButton = cut.WaitForElement("#saveButton");
 
             saveButton.Click();
@@ -120,7 +121,7 @@ namespace IoTHub.Portal.Tests.Unit.Client.Pages.DevicesModels
 
             // Act
             var cut = RenderComponent<DeviceModelDetailPage>
-                    (ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.ModelID), this.mockModelId));
+                    (ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.ModelId), this.mockModelId));
 
             var saveButton = cut.WaitForElement("#saveButton");
             saveButton.Click();
@@ -152,7 +153,7 @@ namespace IoTHub.Portal.Tests.Unit.Client.Pages.DevicesModels
 
             // Act
             var cut = RenderComponent<DeviceModelDetailPage>
-                    (ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.ModelID), this.mockModelId));
+                    (ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.ModelId), this.mockModelId));
 
             cut.WaitForElement($"#{nameof(DeviceModelDto.Name)}").Change("");
             var saveButton = cut.WaitForElement("#saveButton");
@@ -205,7 +206,7 @@ namespace IoTHub.Portal.Tests.Unit.Client.Pages.DevicesModels
 
             // Act
             var cut = RenderComponent<DeviceModelDetailPage>
-                    (ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.ModelID), this.mockModelId));
+                    (ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.ModelId), this.mockModelId));
 
             var saveButton = cut.WaitForElement("#saveButton");
             var addPropertyButton = cut.WaitForElement("#addPropertyButton");
@@ -268,7 +269,7 @@ namespace IoTHub.Portal.Tests.Unit.Client.Pages.DevicesModels
 
             // Act
             var cut = RenderComponent<DeviceModelDetailPage>
-                    (ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.ModelID), this.mockModelId));
+                    (ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.ModelId), this.mockModelId));
 
             var saveButton = cut.WaitForElement("#saveButton");
             var removePropertyButton = cut.WaitForElement("#DeletePropertyButton");
@@ -301,7 +302,7 @@ namespace IoTHub.Portal.Tests.Unit.Client.Pages.DevicesModels
 
             // Act
             var cut = RenderComponent<DeviceModelDetailPage>
-                (ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.ModelID), this.mockModelId));
+                (ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.ModelId), this.mockModelId));
 
             cut.WaitForAssertion(() => cut.Find("#form"));
 
@@ -330,7 +331,7 @@ namespace IoTHub.Portal.Tests.Unit.Client.Pages.DevicesModels
 
             // Act
             var cut = RenderComponent<DeviceModelDetailPage>
-                (ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.ModelID), this.mockModelId));
+                (ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.ModelId), this.mockModelId));
 
             cut.WaitForAssertion(() => cut.Find("#form"));
 
@@ -352,7 +353,7 @@ namespace IoTHub.Portal.Tests.Unit.Client.Pages.DevicesModels
 
             // Act
             var cut = RenderComponent<DeviceModelDetailPage>(
-                    ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.ModelID), this.mockModelId),
+                    ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.ModelId), this.mockModelId),
                     ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.IsLoRa), true));
 
             cut.WaitForAssertion(() => cut.Find("#form"));
@@ -377,7 +378,7 @@ namespace IoTHub.Portal.Tests.Unit.Client.Pages.DevicesModels
 
             // Act
             var cut = RenderComponent<DeviceModelDetailPage>(
-                    ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.ModelID), this.mockModelId),
+                    ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.ModelId), this.mockModelId),
                     ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.IsLoRa), true));
 
             // Assert
@@ -484,7 +485,7 @@ namespace IoTHub.Portal.Tests.Unit.Client.Pages.DevicesModels
             _ = Services.AddSingleton(new PortalSettings { CloudProvider = "Azure" });
 
             var cut = RenderComponent<DeviceModelDetailPage>
-                (ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.ModelID), this.mockModelId));
+                (ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.ModelId), this.mockModelId));
 
             var mockDialogReference = MockRepository.Create<IDialogReference>();
             _ = mockDialogReference.Setup(c => c.Result).ReturnsAsync(DialogResult.Cancel());
@@ -515,7 +516,7 @@ namespace IoTHub.Portal.Tests.Unit.Client.Pages.DevicesModels
 
             // Act
             var cut = RenderComponent<DeviceModelDetailPage>
-                (ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.ModelID), this.mockModelId));
+                (ComponentParameter.CreateParameter(nameof(DeviceModelDetailPage.ModelId), this.mockModelId));
 
             var deleteButton = cut.WaitForElement("#deleteButton");
             deleteButton.Click();
