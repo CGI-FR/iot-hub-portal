@@ -30,6 +30,7 @@ namespace IoTHub.Portal.Infrastructure
         public DbSet<Role> Roles { get; set; }
         public DbSet<Action> Actions { get; set; }
         public DbSet<Principal> Principals { get; set; }
+        public DbSet<Scope> Scopes { get; set; }
 
         public PortalDbContext(DbContextOptions<PortalDbContext> options)
             : base(options)
