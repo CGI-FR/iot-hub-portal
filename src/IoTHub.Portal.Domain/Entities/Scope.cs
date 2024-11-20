@@ -8,6 +8,7 @@ namespace IoTHub.Portal.Domain.Entities
     public class Scope : EntityBase
     {
         public string Name { get; set; } = default!;
-        public string? Father { get; set; } = default!;
+        public Scope? Parent { get; set; }
+        public virtual ICollection<Scope> Children { get; set; }
     }
 }

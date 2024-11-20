@@ -7,8 +7,8 @@ namespace IoTHub.Portal.Domain.Entities
 
     public class AccessControl : EntityBase
     {
-        public Scope Scope { get; set; }
         public string ScopeId { get; set; } = default!;
+        public Scope Scope { get; set; }
         public string RoleId { get; set; } = default!;
         public virtual Role Role { get; set; }
         public string PrincipalId { get; set; } = default!;
