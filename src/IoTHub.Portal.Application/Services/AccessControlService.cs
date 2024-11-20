@@ -59,7 +59,7 @@ namespace IoTHub.Portal.Application.Services
             var acPredicate = PredicateBuilder.True<AccessControl>();
             if (!string.IsNullOrWhiteSpace(acFilter.Keyword))
             {
-                acPredicate = acPredicate.And(ac => ac.Scope.ToLower().Contains(acFilter.Keyword.ToLower()) || ac.Role.Name.ToLower().Contains(acFilter.Keyword.ToLower()));
+                acPredicate = acPredicate.And(ac =>/* ac.Scope.ToLower().Contains(acFilter.Keyword.ToLower()) ||*/ ac.Role.Name.ToLower().Contains(acFilter.Keyword.ToLower()));
             }
 
             if (!string.IsNullOrEmpty(principalId))
@@ -132,7 +132,7 @@ namespace IoTHub.Portal.Application.Services
             }
             acEntity.PrincipalId = accessControl.PrincipalId;
             acEntity.RoleId = accessControl.Role.Id;
-            acEntity.Scope = accessControl.Scope;
+            //acEntity.Scope = accessControl.Scope;
             accessControlRepository.Update(acEntity);
             await this.unitOfWork.SaveAsync();
 
