@@ -50,7 +50,7 @@ namespace IoTHub.Portal.Postgres.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("ScopeId")
+                    b.Property<string>("Scope")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -59,8 +59,6 @@ namespace IoTHub.Portal.Postgres.Migrations
                     b.HasIndex("PrincipalId");
 
                     b.HasIndex("RoleId");
-
-                    b.HasIndex("ScopeId");
 
                     b.ToTable("AccessControls");
                 });
@@ -521,23 +519,6 @@ namespace IoTHub.Portal.Postgres.Migrations
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("IoTHub.Portal.Domain.Entities.Scope", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Father")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Scopes");
-                });
-
             modelBuilder.Entity("IoTHub.Portal.Domain.Entities.User", b =>
                 {
                     b.Property<string>("Id")
@@ -717,17 +698,9 @@ namespace IoTHub.Portal.Postgres.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("IoTHub.Portal.Domain.Entities.Scope", "Scope")
-                        .WithMany()
-                        .HasForeignKey("ScopeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Principal");
 
                     b.Navigation("Role");
-
-                    b.Navigation("Scope");
                 });
 
             modelBuilder.Entity("IoTHub.Portal.Domain.Entities.Action", b =>
